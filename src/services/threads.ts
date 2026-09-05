@@ -1,9 +1,8 @@
 import axios from 'axios'
 import type { Post } from '../types/posts'
 
-// El template incluye un servidor local que implementa los mismos endpoints
-// descritos en el enunciado. Se levanta con `npm run server`.
-const baseUrl = 'http://localhost:3001'
+// El backend real expone los threads bajo /api/threads.
+const baseUrl = "/api/threads";
 
 export interface ThreadCreateData {
   content: string
@@ -26,21 +25,21 @@ export interface ThreadAnswer {
 // los componentes trabajen directamente con los datos y no con AxiosResponse.
 const getAll = (): Promise<Post[]> => {
   return axios
-    .get<Post[]>(`${baseUrl}/threads`)
+    .get<Post[]>(baseUrl)
     .then((response) => response.data)
 }
 
 // P2/P5: crea un thread. El id, fecha, likes, etc. los completa el servidor.
 const create = (data: ThreadCreateData): Promise<Post> => {
   return axios
-    .post<Post>(`${baseUrl}/threads`, data)
+    .post<Post>(baseUrl, data)
     .then((response) => response.data)
 }
 
 // P3: obtiene un thread y todos sus comentarios.
 const getThread = (id: string): Promise<ThreadAnswer> => {
   return axios
-    .get<ThreadAnswer>(`${baseUrl}/threads/${id}`)
+    .get<ThreadAnswer>(`${baseUrl}/${id}`)
     .then((response) => response.data)
 }
 
@@ -50,7 +49,7 @@ const createComment = (
   threadId: number,
 ): Promise<Post> => {
   return axios
-    .post<Post>(`${baseUrl}/threads/${threadId}`, data)
+    .post<Post>(`${baseUrl}/${threadId}`, data)
     .then((response) => response.data)
 }
 
@@ -58,7 +57,7 @@ const createComment = (
 // completa del Post con likes o dislikes ya modificados.
 const update = (id: number, newObject: Post): Promise<Post> => {
   return axios
-    .put<Post>(`${baseUrl}/posts/${id}`, newObject)
+    .put<Post>(`/api/posts/${id}`, newObject)
     .then((response) => response.data)
 }
 

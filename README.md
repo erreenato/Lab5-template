@@ -58,3 +58,56 @@ Formateo del objeto toJSON (conversión de _id a id y eliminación de metadatos 
 
 ### 6. Archivo Principal del Servidor (src/index.ts)
 Creamos el punto de entrada backend/src/index.ts donde se cargan las variables de entorno con dotenv.config() antes que cualquier otra librería, se establece la conexión a MongoDB mediante mongoose.connect() y se inicia la aplicación Express.
+
+## P2. Creación del Endpoint /api/threads y Conexión Frontend-Backend
+
+### 1. Actualización de los Endpoints del Servidor (```backend/src/index.ts```)
+
+En el archivo principal del backend se declararon los endpoints ```/api/threads``` utilizando Express y Mongoose:
+
+- ```GET /api/threads```: Consulta la base de datos MongoDB mediante ```PostModel.find({})``` para retornar el listado completo de publicaciones.
+- ```POST /api/threads```: Valida que la petición incluya el campo obligatorio ```content```, crea una nueva instancia del modelo ```PostModel``` y persiste la publicación en la base de datos respondiendo con código HTTP 201.
+
+### 2. Definición de Tipos en el Backend (```backend/src/types.ts```)
+
+Se creó el archivo de tipos en el servidor para definir la estructura estricta del objeto ```Post```, garantizando coincidencia exacta con la interfaz solicitada en la pauta del laboratorio.
+
+### 3. Modificación de la Capa de Servicios (```src/services/threads.ts```)
+
+Se reestructuraron las peticiones HTTP de la aplicación en el cliente para consumir la ruta relativa ```/api/threads```. Siguiendo el patrón de diseño visto en cátedra, el servicio extrae ```response.data``` directamente en la promesa para abstraer la respuesta de Axios hacia los componentes:
+
+### 4. Configuración del Proxy en Vite (```vite.config.ts```)
+
+Para evitar bloqueos por políticas CORS en entorno de desarrollo y permitir que las llamadas con rutas relativas ```/api``` redirijan hacia el servidor Express en el puerto ```3001```, se editó el archivo de configuración del frontend.
+
+### 5. Integración del Estado en la Vista Principal (```src/pages/Threads.tsx```)
+
+Se utilizó el hook ```useEffect``` con un arreglo de dependencias vacío ```[]``` para realizar la carga inicial de los threads tras el primer render de la página. Al enviar el formulario de creación, la respuesta devuelta por la API se concatena al estado local ```threads``` sin requerir la recarga del sitio.
+
+### 5. Script de Poblamiento Inicial (```backend/src/seed.ts```)
+
+Con el objetivo de cumplir la estructura solicitada para importar datos base locales (data/threads.json) hacia MongoDB, se creó un script utilitario para sembrar la base de datos:
+
+### 7. Comandos de Ejecución y Pruebas
+
+Poblar datos de prueba (Opcional):
+
+```bash
+cd backend
+npx tsx src/seed.ts
+```
+
+Ejecutar Servidor Backend:
+```bash
+cd backend
+npm run dev
+```
+
+Ejecutar Servidor Frontend:
+```bash
+npm run dev
+```
+
+Verificación:
+- Al abrir ```http://localhost:5173```, el frontend realiza una petición ```GET``` a ```/api/threads``` trayendo las publicaciones persistidas en MongoDB.
+- Al ingresar contenido en el formulario y dar clic en Crear thread, la app envía una petición ```POST``` a ```/api/threads``` (código 201), desplegando el nuevo objeto e insiriéndolo de forma permanente en la base de datos.

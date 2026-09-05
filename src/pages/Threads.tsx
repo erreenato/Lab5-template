@@ -15,21 +15,25 @@ const Threads = () => {
       setThreads(data)
       setError(null)
     }).catch(() => {
-      setError('No se pudo conectar con el servidor. Ejecuta npm run server en otra terminal.')
+      setError('No se pudo conectar con el backend. Ejecuta npm run dev dentro de backend.')
     })
   }, [])
 
   // P5: el mismo formulario reutilizable crea un thread en la página principal.
   const createThread = async (data: PostFormData) => {
-    const newThread = await threadsService.create({
-      content: data.content,
-      ...(data.author !== undefined ? { author: data.author } : {}),
-    })
+    try {
+      const newThread = await threadsService.create({
+        content: data.content,
+        ...(data.author !== undefined ? { author: data.author } : {}),
+      })
 
-    // Igual que en la cátedra: agregamos el objeto retornado por el servidor al
-    // estado, sin recargar la página.
-    setThreads((currentThreads) => currentThreads.concat(newThread))
-    setError(null)
+      // Igual que en la cátedra: agregamos el objeto retornado por el servidor al
+      // estado, sin recargar la página.
+      setThreads((currentThreads) => currentThreads.concat(newThread))
+      setError(null)
+    } catch {
+      setError('No se pudo crear el thread. Revisa que el backend esté ejecutándose.')
+    }
   }
 
   return (
