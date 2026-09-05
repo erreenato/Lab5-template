@@ -128,13 +128,37 @@ app.post("/api/threads/:id", async (req: Request, res: Response, next: NextFunct
   }
 });
 
-// Middleware de manejo de errores
-const errorHandler = (error: any, _req: Request, res: Response, _next: NextFunction) => {
-  console.error(error.message);
-  res.status(500).json({ error: "Error interno del servidor" });
+// 1. Middleware para rutas no encontradas (Unknown Endpoint)
+const unknownEndpoint = (_req: Request, res: Response) => {
+  res.status(404).send({ error: "Ruta desconocida o no encontrada" });
 };
 
-app.use(errorHandler);
+app.use(unknownEndpoint);
+
+// 2. Middleware de manejo de errores centralizado (ErrorHandler)
+const errorHandler = (
+  error: any,
+  _req: Request,
+  res: Response,
+  _next: NextFunction
+) => {
+  console.error(error.message); //
+
+  // Captura de errores de validación de Mongoose (threads o comentarios)
+  if (error.name === "ValidationError") {
+    return res.status(400).json({ error: error.message });
+  }
+
+  // Captura de ID mal formateado en MongoDB
+  if (error.name === "CastError") {
+    return res.status(400).json({ error: "Formato de ID inválido" });
+  }
+
+  // Error genérico para otros casos no controlados
+  return res.status(500).json({ error: "Error interno del servidor" });
+};
+
+app.use(errorHandler); //
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

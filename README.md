@@ -142,3 +142,28 @@ npm run dev
 
 Verificación:
 - Se puede entrar a threads específicos y publicar comentarios.
+
+## P4. Middleware de Manejo de Errores y Control de Excepciones
+
+### 1. Implementación del Middleware Centralizado (backend/src/index.ts)
+
+Se incorporó un middleware de manejo de errores al final de la cadena de rutas en Express para capturar excepciones de validación y solicitudes a rutas inexistentes.
+
+### Comandos de Ejecución y Pruebas
+
+Ejecutar Servidor Backend:
+```bash
+cd backend
+npm run dev
+```
+
+Ejecutar Servidor Frontend:
+```bash
+npm run dev
+```
+
+Verificación:
+
+- Validación de Autores Prohibidos / Largo de Texto: Al intentar crear un thread o comentario con autores no permitidos (ej. "Huevito rey") o con un cuerpo superior a 300 caracteres, el servidor responde con un código ```400 Bad Request``` procesado por el ```errorHandler```.
+
+- Estabilidad: La interfaz web en React muestra una alerta controlada sin interrumpir la ejecución ni botar la aplicación Node.js.
