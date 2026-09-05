@@ -64,6 +64,70 @@ app.post("/api/threads", async (req: Request, res: Response, next: NextFunction)
   }
 });
 
+/**
+ * GET /api/threads/:id
+ * Obtener un thread específico y todos sus comentarios asociados
+ */
+app.get("/api/threads/:id", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const threadId = String(req.params.id);
+
+    // Si es un ObjectId válido de Mongo, busca por id nativo, de lo contrario busca por la propiedad id
+    const mainThread = mongoose.Types.ObjectId.isValid(threadId)
+      ? await PostModel.findById(threadId)
+      : await PostModel.findOne({ id: threadId });
+
+    if (!mainThread) {
+      return res.status(404).json({ error: "Thread no encontrado" });
+    }
+
+    const comments = await PostModel.find({ thread: threadId });
+
+    res.json({
+      thread: mainThread,
+      comments: comments,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * POST /api/threads/:id
+ * Agregar un comentario nuevo dentro de un thread
+ */
+app.post("/api/threads/:id", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const threadId = String(req.params.id);
+    const body = req.body;
+
+    if (!body.content) {
+      return res.status(400).json({ error: "El contenido es obligatorio" });
+    }
+
+    // Verificar que el thread exista
+    const parentThread = mongoose.Types.ObjectId.isValid(threadId)
+      ? await PostModel.findById(threadId)
+      : await PostModel.findOne({ id: threadId });
+
+    if (!parentThread) {
+      return res.status(404).json({ error: "El thread al que intenta comentar no existe" });
+    }
+
+    const newComment = new PostModel({
+      content: body.content,
+      author: body.author || null,
+      thread: threadId,
+      parent: body.parent ? String(body.parent) : threadId,
+    });
+
+    const savedComment = await newComment.save();
+    res.status(201).json(savedComment);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Middleware de manejo de errores
 const errorHandler = (error: any, _req: Request, res: Response, _next: NextFunction) => {
   console.error(error.message);

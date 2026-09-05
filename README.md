@@ -111,3 +111,34 @@ npm run dev
 Verificación:
 - Al abrir ```http://localhost:5173```, el frontend realiza una petición ```GET``` a ```/api/threads``` trayendo las publicaciones persistidas en MongoDB.
 - Al ingresar contenido en el formulario y dar clic en Crear thread, la app envía una petición ```POST``` a ```/api/threads``` (código 201), desplegando el nuevo objeto e insiriéndolo de forma permanente en la base de datos.
+
+## P3. Implementación del Endpoint /api/threads/:id y Creación de Comentarios
+
+### 1. Extensión de Endpoints en el Backend (```backend/src/index.ts```)
+Se incorporaron los controladores para la ruta parametrizada ```/api/threads/:id``` en el servidor Express:
+
+- ```GET /api/threads/:id```: Recupera un thread específico según su identificador (buscando por su ```_id``` de MongoDB mediante ```findById``` si es un ```ObjectId``` válido, o por su propiedad ```id```). Adicionalmente, consulta y retorna todos los comentarios asociados que tengan guardado dicho ```threadId``` en el campo ```thread```.
+- ```POST /api/threads/:id```: Valida la existencia previa del thread principal. Posteriormente, crea y persiste un nuevo comentario asignando el ```threadId``` correspondiente en las propiedades ```thread``` y ```parent``` (si no se especifica un subcomentario).
+
+### 2. Comandos de ejecución y pruebas
+
+Poblar datos de prueba (Opcional):
+
+```bash
+cd backend
+npx tsx src/seed.ts
+```
+
+Ejecutar Servidor Backend:
+```bash
+cd backend
+npm run dev
+```
+
+Ejecutar Servidor Frontend:
+```bash
+npm run dev
+```
+
+Verificación:
+- Se puede entrar a threads específicos y publicar comentarios.
