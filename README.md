@@ -198,3 +198,69 @@ Verificación:
 - Al hacer clic en los botones de Like o Dislike en la vista de un thread o comentario, el cliente envía la copia del objeto con los valores incrementados mediante una petición PUT /api/posts/:id.
 
 - El servidor responde con código 200 OK y el nuevo estado persiste en MongoDB tras refrescar el navegador.
+
+##  P6: Despliegue de la Aplicación en Servidor de Producción (re_Activos)
+
+### 1. Preparación del Entorno y Variables en el Servidor
+
+En la consola SSH del servidor del DCC (`fullstack@fullstack.dcc.uchile.cl`), la aplicación del grupo **re_Activos** se aloja en la ruta `~/re_activos/backend/`. Para conectar con la base de datos oficial del laboratorio y levantar el servidor en el puerto asignado (**7060**), se configuró el archivo `~/re_activos/backend/.env` con las credenciales y la fuente de autenticación requeridas:
+
+```env
+MONGODB_URI=mongodb://fulls:fulls@fullstack.dcc.uchile.cl:27019/fullstack?authSource=fullstack
+PORT=7060
+HOST=0.0.0.0
+```
+
+### 2. Configuración de Compilación Local (backend/tsconfig.json)
+
+Para asegurar que el compilador de TypeScript (```tsc```) genere los archivos ejecutables de JavaScript directamente en la carpeta de distribución compartida sin alterar la estructura estática, se descomentaron y ajustaron las propiedades de distribución en ```tsconfig.json```:
+
+```json
+"compilerOptions": {
+  "rootDir": "./src",
+  "outDir": "./dist"
+}
+```
+
+### 3. Flujo de Compilación y Sincronización Local-Remoto
+
+El orden de construcción local es estricto para evitar que el compilador de React elimine los compilados del backend. Desde la máquina local se ejecutaron los siguientes pasos en secuencia:
+
+#### 1. Compilación del Frontend: Genera el bundle de cliente estático (HTML, CSS y JS) en ```backend/dist```.
+
+```bash
+npm run build:ui
+```
+
+#### 2. Compilación del Backend: Compila el archivo ```index.ts``` generando ```index.js``` dentro de la misma carpeta ```backend/dist```.
+
+```bash
+cd backend
+npm run build
+```
+
+#### 3. Transferencia al Servidor (```scp```): Envía la carpeta de distribución lista para producción hacia el servidor.
+
+```bash
+scp -P 219 -r dist fullstack@fullstack.dcc.uchile.cl:re_activos/backend/
+```
+
+### 4. Orquestación y Levantamiento del Servicio con PM2
+
+Una vez sincronizados los archivos en la ruta remota, se reinició el proceso gestionado por PM2 (```re_activos-7060```), forzando la inyección de las variables de entorno de producción actualizadas:
+
+```bash
+pm2 restart re_activos-7060 --update-env
+```
+
+Para verificar la estabilidad del proceso y asegurar que no existan bucles de reinicio (```status: online``` y recuentos de reinicio estables), se ejecutan los comandos de monitoreo:
+
+
+```bash
+pm2 list
+pm2 logs re_activos-7060 --lines 20
+```
+
+### 5. Comandos de Verificación en Producción
+
+Acceso a la aplicación desplegada: http://fullstack.dcc.uchile.cl:7060/

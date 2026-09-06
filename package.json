@@ -7,6 +7,7 @@
     "dev": "vite",
     "server": "tsx watch mock-server/server.ts",
     "build": "tsc -b && vite build",
+    "build:ui": "vite build --outDir backend/dist",
     "lint": "eslint .",
     "preview": "vite preview"
   },
