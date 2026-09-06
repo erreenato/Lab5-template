@@ -128,6 +128,47 @@ app.post("/api/threads/:id", async (req: Request, res: Response, next: NextFunct
   }
 });
 
+/**
+ * PUT /api/posts/:id
+ * Sobrescribir/actualizar un post o comentario existente (likes, dislikes, etc.)
+ */
+app.put("/api/posts/:id", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const postId = String(req.params.id);
+    const body = req.body;
+
+    const postToUpdate = {
+      content: body.content,
+      author: body.author || null,
+      thread: body.thread || null,
+      parent: body.parent || null,
+      likes: body.likes ?? 0,
+      dislikes: body.dislikes ?? 0,
+    };
+
+    // Actualiza el documento buscando por _id nativo o por la propiedad id
+    const updatedPost = mongoose.Types.ObjectId.isValid(postId)
+      ? await PostModel.findByIdAndUpdate(postId, postToUpdate, {
+          new: true,
+          runValidators: true,
+          context: "query",
+        })
+      : await PostModel.findOneAndUpdate({ id: postId }, postToUpdate, {
+          new: true,
+          runValidators: true,
+          context: "query",
+        });
+
+    if (!updatedPost) {
+      return res.status(404).json({ error: "Publicación no encontrada" });
+    }
+
+    res.json(updatedPost);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // 1. Middleware para rutas no encontradas (Unknown Endpoint)
 const unknownEndpoint = (_req: Request, res: Response) => {
   res.status(404).send({ error: "Ruta desconocida o no encontrada" });

@@ -167,3 +167,34 @@ Verificación:
 - Validación de Autores Prohibidos / Largo de Texto: Al intentar crear un thread o comentario con autores no permitidos (ej. "Huevito rey") o con un cuerpo superior a 300 caracteres, el servidor responde con un código ```400 Bad Request``` procesado por el ```errorHandler```.
 
 - Estabilidad: La interfaz web en React muestra una alerta controlada sin interrumpir la ejecución ni botar la aplicación Node.js.
+
+## P5. Endpoint de Actualización (PUT /api/posts/:id)
+
+### 1. Implementación del Endpoint en el Backend (```backend/src/index.ts```)
+
+Se creó la ruta ```PUT /api/posts/:id``` en Express para permitir la modificación completa de un thread o comentario (incluyendo sus contadores de interacciones):
+
+Opciones del método Mongoose (```findByIdAndUpdate``` / ```findOneAndUpdate```):
+
+- ```new: true```: Retorna el documento ya actualizado para enviarlo como respuesta al cliente.
+
+- ```runValidators: true```: Garantiza que el objeto modificado siga respetando las validaciones del esquema (como largo de texto y autores).
+
+### 2. Comandos de ejecución y pruebas 
+
+Ejecutar Servidor Backend:
+```bash
+cd backend
+npm run dev
+```
+
+Ejecutar Servidor Frontend:
+```bash
+npm run dev
+```
+
+Verificación:
+
+- Al hacer clic en los botones de Like o Dislike en la vista de un thread o comentario, el cliente envía la copia del objeto con los valores incrementados mediante una petición PUT /api/posts/:id.
+
+- El servidor responde con código 200 OK y el nuevo estado persiste en MongoDB tras refrescar el navegador.
