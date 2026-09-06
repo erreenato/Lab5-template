@@ -7,6 +7,7 @@
     "dev": "vite",
     "server": "tsx watch mock-server/server.ts",
     "build": "tsc -b && vite build",
+    "build:ui": "vite build --outDir backend/dist",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@eslint/js": "^9.33.0",
     "@stylistic/eslint-plugin": "^5.3.1",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.0",
     "@types/node": "^24.5.2",
     "@types/react": "^19.1.10",

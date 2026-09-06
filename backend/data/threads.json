@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "content": "Primer hilo de prueba creado localmente",
+    "author": "Admin",
+    "thread": null,
+    "parent": null,
+    "createdAt": "2026-09-05T10:00:00.000Z",
+    "updatedAt": "2026-09-05T10:00:00.000Z",
+    "likes": 0,
+    "dislikes": 0
+  }
+]
